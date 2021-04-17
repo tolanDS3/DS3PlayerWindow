@@ -22,7 +22,7 @@ Global ItemName := []
 Loop,Read,Items.dat
 	ItemName[StrSplit(A_LoopReadLine,A_Tab)[1]] := StrSplit(A_LoopReadLine,A_Tab)[2]
 
-Menu Tray, Icon, shell32.dll, 307
+Menu Tray, Icon, .\Images\DS3PlayerWindow.ico
 
 Gui Color, 0x000000
 Gui +LastFound +AlwaysOnTop -Caption +ToolWindow
