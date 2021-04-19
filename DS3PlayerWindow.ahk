@@ -170,23 +170,6 @@ UpdateOSD:
 	ActivePlayers := []
 	ActivePlayers := GetActivePlayers()
 	
-	; DEBUG START
-	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	sTemp := ""
-	For Index, ActivePlayerNumber in ActivePlayers
-	{
-		sTtt := ActivePlayerNumber
-		For Index, Element in Player[ActivePlayerNumber]
-		{
-			if(Index<>"SteamHTML")
-				sTemp := sTemp . "Player[" . sTtt . "]." Index . "=" . Element . "`n"
-		}
-	}
-	Clipboard := sTemp
-	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-	; DEBUG END
-	
-	
 	For Index, ActivePlayerNumber in ActivePlayers
 	{
 		if(Player[ActivePlayerNumber].FlagPath<>FlagList[Index])
