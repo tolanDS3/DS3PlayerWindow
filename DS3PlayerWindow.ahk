@@ -24,7 +24,7 @@ if(FileExist("DS3PlayerWindow.ini"))
 	}
 	For Index, Element in {"Host":"00FF00","Phantom":"FFFFFF","Dark Spirit (Red Summon)":"FF0000","Dark Spirit (Invader)":"FF0000","Mound-Maker (White Summon)":"FFFFFF"
 	,"Spear of the Church":"8000FF","Blade of the Darkmoon":"0000FF","Watchdog of Farron":"8000FF","Aldrich Faithful":"8000FF","Arena":"FFFFFF"
-	,"Warrior of Sunlight (White Summon)":"FFFFFF","Warrior of Sunlight (Red Summon)":"FF8000","Mound-Maker (Red Summon)":"FF00FF"
+	,"Warrior of Sunlight (White Summon)":"FFFF00","Warrior of Sunlight (Red Summon)":"FF8000","Mound-Maker (Red Summon)":"FF00FF"
 	,"Warrior of Sunlight (Invader)":"FF8000","Mound-Maker (Invader)":"FF00FF","Blue Sentinel":"0000FF"}
 	{
 		IniWrite,%Element%,DS3PlayerWindow.ini,LabelColor,%Index%
