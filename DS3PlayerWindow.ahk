@@ -6,22 +6,32 @@ SetBatchLines -1
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-Global Window 	:= []
-Global LabelColor	:= []
+Global Window := []
+Global LabelColor := []
 if(FileExist("DS3PlayerWindow.ini"))
 {
 	IniRead,Temp,DS3PlayerWindow.ini,Window
-	Loop, Parse, Temp, `n, `r
-	{
-		Array := StrSplit(A_LoopField,"=")
-		Window[Array[1]] := Array[2]	
-	}
+	Loop,Parse,Temp,`n,`r
+		Window[StrSplit(A_LoopField,"=")[1]] := StrSplit(A_LoopField,"=")[2]
+	IniRead,Temp,DS3PlayerWindow.ini,LabelColor
+	Loop,Parse,Temp,`n,`r
+		LabelColor[StrSplit(A_LoopField,"=")[1]] := StrSplit(A_LoopField,"=")[2]
 } else {
 	For Index, Element in {"X":1520,"Y":0,"Transparency":200,"Color":"000000","Font":"Calibri"}
 	{
 		IniWrite,%Element%,DS3PlayerWindow.ini,Window,%Index%
 		Window[Index] := Element
 	}
+	
+	For Index, Element in {"Host":"00FF00","Phantom":"FFFFFF","Dark Spirit (Red Summon)":"FF0000","Dark Spirit (Invader)":"FF0000","Mound-Maker (White Summon)":"FFFFFF"
+	,"Spear of the Church":"8000FF","Blade of the Darkmoon":"0000FF","Watchdog of Farron":"8000FF","Aldrich Faithful":"8000FF","Arena":"FFFFFF"
+	,"Warrior of Sunlight (White Summon)":"FFFFFF","Warrior of Sunlight (Red Summon)":"FF8000","Mound-Maker (Red Summon)":"FF00FF"
+	,"Warrior of Sunlight (Invader)":"FF8000","Mound-Maker (Invader)":"FF00FF","Blue Sentinel":"0000FF"}
+	{
+		IniWrite,%Element%,DS3PlayerWindow.ini,LabelColor,%Index%
+		LabelColor[Index] := Element
+	}
+	
 }
 
 Global Player := []
@@ -85,9 +95,8 @@ Gui Add, Picture, vFlag5 x374 y355 w16 h11 +0x2
 
 WinSet, Transparent, % Window.Transparency
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 SetTimer,UpdateOSD,16
+
 Return
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -96,8 +105,14 @@ UpdateOSD:
 
 	if(!WinActive("DARK SOULS III"))
 	{
-		;Gui,Show,Hide
-		;Return
+		Gui,Show,Hide
+		Return
+	}
+
+	if(!GetActivePlayers()[1])
+	{
+		Gui,Show,Hide
+		Return	
 	}
 
 	Game := new _ClassMemory("ahk_exe DarkSoulsIII.exe", "", hProcessCopy)
@@ -105,12 +120,6 @@ UpdateOSD:
 	{
 		Gui,Show,Hide
 		Return
-	}
-	
-	if(!GetActivePlayers()[1])
-	{
-		Gui,Show,Hide
-		Return	
 	}
 	
 	BaseB := Game.BaseAddress + 0x4768E78
@@ -152,13 +161,33 @@ UpdateOSD:
 		Player[Index].InvadeType := Game.read(BaseB,"Char",0x40,Element,0x1FA0,0xFC)
 		Player[Index].SteamHTML := GetSteamHTML(Player[Index].SteamIDHex)
 		Player[Index].SteamName := GetSteamName(Player[Index].SteamIDHex)
-		Player[Index].SteamAvatarURL := GetSteamAvatarURL(Player[Index].SteamIDHex)
-		Player[Index].SteamFlagURL := GetSteamFlagURL(Player[Index].SteamIDHex)
-		Player[Index].ImagePath := GetImagePath(Player[Index].SteamIDHex)
+		Player[Index].AvatarURL := GetAvatarURL(Player[Index].SteamIDHex)
+		Player[Index].AvatarPath := GetAvatarPath(Player[Index].SteamIDHex)
+		Player[Index].FlagURL := GetFlagURL(Player[Index].SteamIDHex)
 		Player[Index].FlagPath := GetFlagPath(Player[Index].SteamIDHex)
 	}
 	
-	For Index, ActivePlayerNumber in GetActivePlayers()
+	ActivePlayers := []
+	ActivePlayers := GetActivePlayers()
+	
+	; DEBUG START
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	sTemp := ""
+	For Index, ActivePlayerNumber in ActivePlayers
+	{
+		sTtt := ActivePlayerNumber
+		For Index, Element in Player[ActivePlayerNumber]
+		{
+			if(Index<>"SteamHTML")
+				sTemp := sTemp . "Player[" . sTtt . "]." Index . "=" . Element . "`n"
+		}
+	}
+	Clipboard := sTemp
+	;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+	; DEBUG END
+	
+	
+	For Index, ActivePlayerNumber in ActivePlayers
 	{
 		if(Player[ActivePlayerNumber].FlagPath<>FlagList[Index])
 		{
@@ -169,11 +198,11 @@ UpdateOSD:
 			GuiControl,+Redraw,Flag%Index%
 		}
 		
-		if(Player[ActivePlayerNumber].ImagePath<>ImageList[Index])
+		if(Player[ActivePlayerNumber].AvatarPath<>ImageList[Index])
 		{
 			GuiControl,-Redraw,Pic%Index%
-			GuiControl,,Pic%Index%,% Player[ActivePlayerNumber].ImagePath
-			ImageList[Index] := Player[ActivePlayerNumber].ImagePath
+			GuiControl,,Pic%Index%,% Player[ActivePlayerNumber].AvatarPath
+			ImageList[Index] := Player[ActivePlayerNumber].AvatarPath
 			GuiControl,Move,Pic%Index%,w64 h64
 			GuiControl,+Redraw,Pic%Index%
 		}
@@ -182,37 +211,27 @@ UpdateOSD:
 		if(Player[ActivePlayerNumber].Name<>Temp)
 		{
 			GuiControl,-Redraw,Name%Index%
+			if(GetInvadeType(Player[ActivePlayerNumber].InvadeType))
+				GuiControl,% "+c" . LabelColor[GetInvadeType(Player[ActivePlayerNumber].InvadeType)],Name%A_Index%
 			GuiControl,,Name%Index%,% Player[ActivePlayerNumber].Name
 			GuiControl,+Redraw,Name%Index%
 		}
-
-		; Begin debug
 		
-		;GuiControlGet,Temp,,Steam%Index%
-		;if(Player[ActivePlayerNumber].SteamName<>Temp)
-		;{
-		;	GuiControl,-Redraw,Steam%Index%
-		;	GuiControl,,Steam%Index%,% Player[ActivePlayerNumber].SteamName
-		;	GuiControl,+Redraw,Steam%Index%
-		;}	
-
 		GuiControlGet,Temp,,Steam%Index%
-		if(GetInvaderType(Player[ActivePlayerNumber].InvadeType)<>Temp)
+		if(Player[ActivePlayerNumber].SteamName<>Temp)
+		{
+			GuiControl,-Redraw,Steam%Index%
+			GuiControl,,Steam%Index%,% Player[ActivePlayerNumber].SteamName
+			GuiControl,+Redraw,Steam%Index%
+		}	
+		
+		GuiControlGet,Temp,,Level%Index%
+		if("Lv." . Player[ActivePlayerNumber].Level<>Temp)
 		{
 			GuiControl,-Redraw,Level%Index%
-			GuiControl,,Steam%Index%,% GetInvaderType(Player[ActivePlayerNumber].InvadeType)
+			GuiControl,,Level%Index%,% "Lv." . Player[ActivePlayerNumber].Level
 			GuiControl,+Redraw,Level%Index%
 		}
-		
-		;GuiControlGet,Temp,,Level%Index%
-		;if("Lv." . Player[ActivePlayerNumber].Level<>Temp)
-		;{
-		;	GuiControl,-Redraw,Level%Index%
-		;	GuiControl,,Level%Index%,% "Lv." . Player[ActivePlayerNumber].Level
-		;	GuiControl,+Redraw,Level%Index%
-		;}
-		
-		; End debug
 		
 		GuiControlGet,Temp,,Bar%Index%
 		if(Player[ActivePlayerNumber].HP<>Temp)
@@ -234,7 +253,7 @@ UpdateOSD:
 	}
 
 
-	Window["Height"] := (GetActivePlayers().Count()*80)
+	Window["Height"] := (ActivePlayers.Count()*80)
 	if(!Window["Height"])
 	{
 		Gui,Show,Hide
@@ -293,23 +312,28 @@ GetActivePlayers()
 	Return 0
 }
 
-GetInvaderType(Int)
+GetInvadeType(Int)
 {
-	switch Int
+	Switch Int
 	{
-		case 0:		Return "Host"
-		case 1:		Return "Phantom"
-		case 2:		Return "Dark Spirit (Summoned)"
-		case 3:		Return "Dark Spirit (Invader)"
-		case 4:		Return "Mad Dark Spirit (Summoned)"
-		case 7:		Return "Blue Sentinel"
-		case 10:	Return "Aldrich Faithful"
-		case 15:	Return "Warrior of Sunlight (Red)"
-		case 16:	Return "Mad Spirit (Summoned)"
-		case 18:	Return "Mad Spirit (Invader)"
-		case 21:	Return "Blade of the Darkmoon"
+		Case 0:		Return "Host"
+		Case 1:		Return "Phantom"
+		Case 2:		Return "Dark Spirit (Red Summon)"
+		Case 3:		Return "Dark Spirit (Invader)"
+		Case 4:		Return "Mound-Maker (White Summon)"
+		Case 6:		Return "Spear of the Church"
+		Case 7:		Return "Blade of the Darkmoon"
+		Case 9:		Return "Watchdog of Farron"
+		Case 10:	Return "Aldrich Faithful"
+		Case 12:	Return "Arena"
+		Case 14:	Return "Warrior of Sunlight (White Summon)"
+		Case 15:	Return "Warrior of Sunlight (Red Summon)"
+		Case 16:	Return "Mound-Maker (Red Summon)"
+		Case 17:	Return "Warrior of Sunlight (Invader)"
+		Case 18:	Return "Mound-Maker (Invader)"
+		Case 21:	Return "Blue Sentinel"
 	}
-	Return Int
+	Return
 }
 
 GetSteamHTML(SteamIDHex)
@@ -366,7 +390,7 @@ GetSteamName(SteamIDHex)
 	Return 0
 }
 
-GetSteamAvatarURL(SteamIDHex)
+GetAvatarURL(SteamIDHex)
 {
 	if(!SteamIDHex)
 		Return
@@ -399,7 +423,7 @@ GetSteamAvatarURL(SteamIDHex)
 	Return
 }
 
-GetSteamFlagURL(SteamIDHex)
+GetFlagURL(SteamIDHex)
 {
 	if(!SteamIDHex || SteamIDHex="PyreProteccAC")
 		Return
@@ -429,7 +453,7 @@ GetSteamFlagURL(SteamIDHex)
 	Return
 }
 
-GetImagePath(SteamIDHex)
+GetAvatarPath(SteamIDHex)
 {
 	ImageDir := A_ScriptDir . "\Images\Profile Pictures"
 	IfNotExist,%ImageDir%
@@ -439,20 +463,20 @@ GetImagePath(SteamIDHex)
 	if(!FileExist(DefaultImage))
 		UrlDownloadToFile,% "https://cdn.akamai.steamstatic.com/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg",% DefaultImage
 	
-	if(Cache[SteamIDHex].ImagePath)
-		Return Cache[SteamIDHex].ImagePath
+	if(Cache[SteamIDHex].AvatarPath)
+		Return Cache[SteamIDHex].AvatarPath
 
-	if(!SteamIDHex || SteamIDHex="PyreProteccAC" || !GetSteamAvatarURL(SteamIDHex) || GetSteamAvatarURL(SteamIDHex)="https://cdn.akamai.steamstatic.com/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg")
+	if(!SteamIDHex || SteamIDHex="PyreProteccAC" || !GetAvatarURL(SteamIDHex) || GetAvatarURL(SteamIDHex)="https://cdn.akamai.steamstatic.com/steamcommunity/public/images/avatars/fe/fef49e7fa7e1997310d705b2a6158ff8dc1cdfeb_full.jpg")
 		Return DefaultImage
 
 	if(!Cache[SteamIDHex].Count())
 		Cache[SteamIDHex] := {}	
 	
-	UrlDownloadToFile, % GetSteamAvatarURL(SteamIDHex),% ImageDir . "\" . HexToInt(SteamIDHex) . ".jpg"
+	UrlDownloadToFile, % GetAvatarURL(SteamIDHex),% ImageDir . "\" . HexToInt(SteamIDHex) . ".jpg"
 	if(ErrorLevel=0)
 	{
-		Cache[SteamIDHex].ImagePath := ImageDir . "\" . HexToInt(SteamIDHex) . ".jpg"
-		Return Cache[SteamIDHex].ImagePath
+		Cache[SteamIDHex].AvatarPath := ImageDir . "\" . HexToInt(SteamIDHex) . ".jpg"
+		Return Cache[SteamIDHex].AvatarPath
 	}
 	
 }
@@ -471,9 +495,12 @@ GetFlagPath(SteamIDHex)
 	
 	Loop,25
 	{
-		if(InStr(StrSplit(GetSteamFlagURL(SteamIDHex),["""","/"])[A_Index],".gif"))
-			FlagName := StrSplit(GetSteamFlagURL(SteamIDHex),["""","/"])[A_Index]
+		if(InStr(StrSplit(GetFlagURL(SteamIDHex),["""","/"])[A_Index],".gif"))
+			FlagName := StrSplit(GetFlagURL(SteamIDHex),["""","/"])[A_Index]
 	}
+	
+	if(!FlagName)
+		Return
 	
 	if(FileExist(ImageDir . "\" . FlagName))
 	{
@@ -481,7 +508,7 @@ GetFlagPath(SteamIDHex)
 		Return Cache[SteamIDHex].FlagPath
 	}
 	
-	UrlDownloadToFile, % GetSteamFlagURL(SteamIDHex), % ImageDir . "\" . FlagName
+	UrlDownloadToFile, % GetFlagURL(SteamIDHex), % ImageDir . "\" . FlagName
 	if(ErrorLevel=0)
 	{
 		Cache[SteamIDHex].FlagPath := ImageDir . "\" . FlagName
