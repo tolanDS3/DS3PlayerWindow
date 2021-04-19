@@ -360,7 +360,7 @@ GetSteamName(SteamIDHex)
 			}
 		}
 	}
-	Return 0
+	Return
 }
 
 GetAvatarURL(SteamIDHex)
