@@ -1,10 +1,10 @@
+; DS3PlayerWindow v1.1.ahk
+
 #NoEnv
 #SingleInstance Force
 #Include .\Include\ClassMemory.ahk
 SetWorkingDir %A_ScriptDir%
 SetBatchLines -1
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 Global Window := []
 Global LabelColor := []
@@ -32,16 +32,12 @@ if(FileExist("DS3PlayerWindow.ini"))
 	}
 }
 
+Global FlagList := []
+Global ImageList := []
+Global Cache := []
 Global Player := []
 Loop,5
 	Player[A_Index] := {}
-
-Global FlagList := []
-Global ImageList := []
-
-Global Cache := []
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 Gui Color, % Window["Color"]
 Gui +LastFound +AlwaysOnTop -Caption +ToolWindow
@@ -75,7 +71,7 @@ Gui Add, Text, vSteam5 x80 y350 w312 h20 +0x200, Steam 5
 Gui Add, Progress, vBar1 x80 y57 w312 h15 -Smooth +Border +Background0x191919 +C0x9B0004, 33
 Gui Add, Progress, vBar2 x80 y137 w312 h15 -Smooth +Border +Background0x191919 +C0x9B0004, 33
 Gui Add, Progress, vBar3 x80 y217 w312 h15 -Smooth +Border +Background0x191919 +C0x9B0004, 33
-Gui Add, Progress, vBar4 x80 y297 w312 h15 -Smooth +Border +Background0x191919 +C0x9B0004, 33d
+Gui Add, Progress, vBar4 x80 y297 w312 h15 -Smooth +Border +Background0x191919 +C0x9B0004, 33
 Gui Add, Progress, vBar5 x80 y377 w312 h15 -Smooth +Border +Background0x191919 +C0x9B0004, 33
 
 Gui Font, s8 c0xFFFFFF, % Window["Font"]
@@ -96,8 +92,6 @@ WinSet, Transparent, % Window.Transparency
 SetTimer,UpdateOSD,16
 
 Return
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 UpdateOSD:
 
@@ -170,30 +164,14 @@ UpdateOSD:
 	
 	For Index, ActivePlayerNumber in ActivePlayers
 	{
-		if(Player[ActivePlayerNumber].FlagPath<>FlagList[Index])
-		{
-			GuiControl,-Redraw,Flag%Index%
-			GuiControl,,Flag%Index%,% Player[ActivePlayerNumber].FlagPath
-			FlagList[Index] := Player[ActivePlayerNumber].FlagPath
-			GuiControl,Move,Flag%Index%,w16 h11
-			GuiControl,+Redraw,Flag%Index%
-		}
-		
-		if(Player[ActivePlayerNumber].AvatarPath<>ImageList[Index])
-		{
-			GuiControl,-Redraw,Pic%Index%
-			GuiControl,,Pic%Index%,% Player[ActivePlayerNumber].AvatarPath
-			ImageList[Index] := Player[ActivePlayerNumber].AvatarPath
-			GuiControl,Move,Pic%Index%,w64 h64
-			GuiControl,+Redraw,Pic%Index%
-		}
-
 		GuiControlGet,Temp,,Name%Index%
 		if(Player[ActivePlayerNumber].Name<>Temp)
 		{
 			GuiControl,-Redraw,Name%Index%
-			if(GetInvadeType(Player[ActivePlayerNumber].InvadeType))
+			if(LabelColor[GetInvadeType(Player[ActivePlayerNumber].InvadeType)])
 				GuiControl,% "+c" . LabelColor[GetInvadeType(Player[ActivePlayerNumber].InvadeType)],Name%A_Index%
+			else
+				GuiControl,+cFFFFFF,Name%A_Index%
 			GuiControl,,Name%Index%,% Player[ActivePlayerNumber].Name
 			GuiControl,+Redraw,Name%Index%
 		}
@@ -204,7 +182,7 @@ UpdateOSD:
 			GuiControl,-Redraw,Steam%Index%
 			GuiControl,,Steam%Index%,% Player[ActivePlayerNumber].SteamName
 			GuiControl,+Redraw,Steam%Index%
-		}	
+		}
 		
 		GuiControlGet,Temp,,Level%Index%
 		if("Lv." . Player[ActivePlayerNumber].Level<>Temp)
@@ -230,7 +208,25 @@ UpdateOSD:
 			GuiControl,-Redraw,HP%Index%
 			GuiControl,,HP%Index%,% Player[ActivePlayerNumber].HP . " / " . Player[ActivePlayerNumber].HPMax
 			GuiControl,+Redraw,HP%Index%
+		}		
+	
+		if(Player[ActivePlayerNumber].FlagPath<>FlagList[Index])
+		{
+			GuiControl,-Redraw,Flag%Index%
+			GuiControl,,Flag%Index%,% Player[ActivePlayerNumber].FlagPath
+			FlagList[Index] := Player[ActivePlayerNumber].FlagPath
+			GuiControl,Move,Flag%Index%,w16 h11
+			GuiControl,+Redraw,Flag%Index%
 		}
+		
+		if(Player[ActivePlayerNumber].AvatarPath<>ImageList[Index])
+		{
+			GuiControl,-Redraw,Pic%Index%
+			GuiControl,,Pic%Index%,% Player[ActivePlayerNumber].AvatarPath
+			ImageList[Index] := Player[ActivePlayerNumber].AvatarPath
+			GuiControl,Move,Pic%Index%,w64 h64
+			GuiControl,+Redraw,Pic%Index%
+		}	
 	}
 
 
@@ -243,8 +239,6 @@ UpdateOSD:
 
 	Gui Show, % "w400 h" . Window["Height"] . " x" . Window["X"] . " y" . Window["Y"] . " NoActivate"
 Return
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 HexToInt(Hex)
 {
@@ -266,8 +260,6 @@ IntToHex(Int)
     h := StrReplace(h,A_Space)
 	return h
 }
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 GetActivePlayers()
 {
@@ -452,6 +444,9 @@ GetAvatarPath(SteamIDHex)
 
 	if(!Cache[SteamIDHex].Count())
 		Cache[SteamIDHex] := {}	
+
+	if(!GetAvatarURL(SteamIDHex))
+		Return
 	
 	UrlDownloadToFile, % GetAvatarURL(SteamIDHex),% ImageDir . "\" . HexToInt(SteamIDHex) . ".jpg"
 	if(ErrorLevel=0)
