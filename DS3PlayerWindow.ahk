@@ -22,7 +22,6 @@ if(FileExist("DS3PlayerWindow.ini"))
 		IniWrite,%Element%,DS3PlayerWindow.ini,Window,%Index%
 		Window[Index] := Element
 	}
-	
 	For Index, Element in {"Host":"00FF00","Phantom":"FFFFFF","Dark Spirit (Red Summon)":"FF0000","Dark Spirit (Invader)":"FF0000","Mound-Maker (White Summon)":"FFFFFF"
 	,"Spear of the Church":"8000FF","Blade of the Darkmoon":"0000FF","Watchdog of Farron":"8000FF","Aldrich Faithful":"8000FF","Arena":"FFFFFF"
 	,"Warrior of Sunlight (White Summon)":"FFFFFF","Warrior of Sunlight (Red Summon)":"FF8000","Mound-Maker (Red Summon)":"FF00FF"
@@ -31,7 +30,6 @@ if(FileExist("DS3PlayerWindow.ini"))
 		IniWrite,%Element%,DS3PlayerWindow.ini,LabelColor,%Index%
 		LabelColor[Index] := Element
 	}
-	
 }
 
 Global Player := []
@@ -123,42 +121,42 @@ UpdateOSD:
 	}
 	
 	BaseB := Game.BaseAddress + 0x4768E78
-	For Index, Element in [0x38,0x70,0xA8,0xE0,0x118]
+	For Index, Offset in [0x38,0x70,0xA8,0xE0,0x118]
 	{
-		Player[Index].Level := Game.Read(BaseB,"Int",0x40,Element,0x1FA0,0x70)
-		Player[Index].Name := Game.readString(BaseB,length:=32,encoding:="utf-16",0x40,Element,0x1FA0,0x88)
-		Player[Index].HP := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x18)	
-		Player[Index].HPMax := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x1C)	
-		Player[Index].FPMax := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x2C)
-		Player[Index].StaminaMax := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x3C)
-		Player[Index].SteamIDHex := Game.readString(BaseB,length:=32,encoding:="utf-16",0x40,Element,0x1FA0,0x7D8)
-		Player[Index].Vigor := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x44)
-		Player[Index].Attunement := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x48)
-		Player[Index].Endurance := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x4C)
-		Player[Index].Vitality := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x6C)
-		Player[Index].Strength := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x50)
-		Player[Index].Luck := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x60)
-		Player[Index].Dexterity := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x54)
-		Player[Index].Intelligence := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x58)
-		Player[Index].Faith := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x5C)
-		Player[Index].RightHand1 := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x330)
-		Player[Index].RightHand2 := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x338)
-		Player[Index].RightHand3 := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x340)
-		Player[Index].LeftHand1 := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x32C)
-		Player[Index].LeftHand2 := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x334)
-		Player[Index].LeftHand3 := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x33C)
-		Player[Index].Chest := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x360)
-		Player[Index].Hands := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x364)
-		Player[Index].Legs := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x368)
-		Player[Index].Head := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x35C)
-		Player[Index].Ring1 := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x370)
-		Player[Index].Ring2 := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x374)
-		Player[Index].Ring3 := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x378)
-		Player[Index].Ring4 := Game.read(BaseB,"Int",0x40,Element,0x1FA0,0x37C)
-		Player[Index].TeamType := Game.read(BaseB,"Int",0x40,Element,0x74)
-		Player[Index].Covenant := Game.read(BaseB,"Char",0x40,Element,0x1FA0,0xF7)
-		Player[Index].CharacterType := Game.read(BaseB,"Int",0x40,Element,0x70)
-		Player[Index].InvadeType := Game.read(BaseB,"Char",0x40,Element,0x1FA0,0xFC)
+		Player[Index].Level := Game.Read(BaseB,"Int",0x40,Offset,0x1FA0,0x70)
+		Player[Index].Name := Game.readString(BaseB,length:=32,encoding:="utf-16",0x40,Offset,0x1FA0,0x88)
+		Player[Index].HP := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x18)	
+		Player[Index].HPMax := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x1C)	
+		Player[Index].FPMax := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x2C)
+		Player[Index].StaminaMax := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x3C)
+		Player[Index].SteamIDHex := Game.readString(BaseB,length:=32,encoding:="utf-16",0x40,Offset,0x1FA0,0x7D8)
+		Player[Index].Vigor := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x44)
+		Player[Index].Attunement := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x48)
+		Player[Index].Endurance := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x4C)
+		Player[Index].Vitality := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x6C)
+		Player[Index].Strength := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x50)
+		Player[Index].Luck := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x60)
+		Player[Index].Dexterity := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x54)
+		Player[Index].Intelligence := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x58)
+		Player[Index].Faith := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x5C)
+		Player[Index].RightHand1 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x330)
+		Player[Index].RightHand2 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x338)
+		Player[Index].RightHand3 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x340)
+		Player[Index].LeftHand1 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x32C)
+		Player[Index].LeftHand2 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x334)
+		Player[Index].LeftHand3 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x33C)
+		Player[Index].Chest := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x360)
+		Player[Index].Hands := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x364)
+		Player[Index].Legs := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x368)
+		Player[Index].Head := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x35C)
+		Player[Index].Ring1 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x370)
+		Player[Index].Ring2 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x374)
+		Player[Index].Ring3 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x378)
+		Player[Index].Ring4 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x37C)
+		Player[Index].TeamType := Game.read(BaseB,"Int",0x40,Offset,0x74)
+		Player[Index].Covenant := Game.read(BaseB,"Char",0x40,Offset,0x1FA0,0xF7)
+		Player[Index].CharacterType := Game.read(BaseB,"Int",0x40,Offset,0x70)
+		Player[Index].InvadeType := Game.read(BaseB,"Char",0x40,Offset,0x1FA0,0xFC)
 		Player[Index].SteamHTML := GetSteamHTML(Player[Index].SteamIDHex)
 		Player[Index].SteamName := GetSteamName(Player[Index].SteamIDHex)
 		Player[Index].AvatarURL := GetAvatarURL(Player[Index].SteamIDHex)
