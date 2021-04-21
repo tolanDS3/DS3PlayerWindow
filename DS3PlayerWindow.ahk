@@ -17,12 +17,12 @@ if(FileExist("DS3PlayerWindow.ini"))
 	Loop,Parse,Temp,`n,`r
 		LabelColor[StrSplit(A_LoopField,"=")[1]] := StrSplit(A_LoopField,"=")[2]
 } else {
-	For Index, Element in {"X":1520,"Y":0,"Transparency":200,"Color":"000000","Font":"Calibri"}
+	For Index, Element in {"X":1520,"Y":0,"Transparency":200,"Color":"000000","Font":"Calibri","LogPlayers":"0"}
 	{
 		IniWrite,%Element%,DS3PlayerWindow.ini,Window,%Index%
 		Window[Index] := Element
 	}
-	For Index, Element in {"Host":"00FF00","Phantom":"FFFFFF","Dark Spirit (Red Summon)":"FF0000","Dark Spirit (Invader)":"FF0000","Mound-Maker (White Summon)":"FFFFFF"
+	For Index, Element in {"Host":"00FF00","Phantom":"FFFFFF","Dark Spirit (Red Summon)":"FF0000","Dark Spirit (Invader)":"FF0000","Mound-Maker (White Summon)":"FF00FF"
 	,"Spear of the Church":"8000FF","Blade of the Darkmoon":"0000FF","Watchdog of Farron":"8000FF","Aldrich Faithful":"8000FF","Arena":"FFFFFF"
 	,"Warrior of Sunlight (White Summon)":"FFFF00","Warrior of Sunlight (Red Summon)":"FF8000","Mound-Maker (Red Summon)":"FF00FF"
 	,"Warrior of Sunlight (Invader)":"FF8000","Mound-Maker (Invader)":"FF00FF","Blue Sentinel":"0000FF"}
@@ -32,6 +32,15 @@ if(FileExist("DS3PlayerWindow.ini"))
 	}
 }
 
+Global ItemName := []
+Loop,Read,Items.dat
+	ItemName[StrSplit(A_LoopReadLine,A_Tab)[1]] := StrSplit(A_LoopReadLine,A_Tab)[2]
+
+
+Global PlayerEntry := []
+Loop,Read,Players.dat
+	PlayerEntry[StrReplace(A_LoopReadLine,"`n")] := 1
+	
 Global FlagList := []
 Global ImageList := []
 Global Cache := []
@@ -133,20 +142,20 @@ UpdateOSD:
 		Player[Index].Dexterity := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x54)
 		Player[Index].Intelligence := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x58)
 		Player[Index].Faith := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x5C)
-		Player[Index].RightHand1 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x330)
-		Player[Index].RightHand2 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x338)
-		Player[Index].RightHand3 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x340)
-		Player[Index].LeftHand1 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x32C)
-		Player[Index].LeftHand2 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x334)
-		Player[Index].LeftHand3 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x33C)
-		Player[Index].Chest := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x360)
-		Player[Index].Hands := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x364)
-		Player[Index].Legs := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x368)
-		Player[Index].Head := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x35C)
-		Player[Index].Ring1 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x370)
-		Player[Index].Ring2 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x374)
-		Player[Index].Ring3 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x378)
-		Player[Index].Ring4 := Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x37C)
+		Player[Index].RightHand1 := GetItemName(Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x330))
+		Player[Index].RightHand2 := GetItemName(Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x338))
+		Player[Index].RightHand3 := GetItemName(Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x340))
+		Player[Index].LeftHand1 := GetItemName(Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x32C))
+		Player[Index].LeftHand2 := GetItemName(Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x334))
+		Player[Index].LeftHand3 := GetItemName(Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x33C))
+		Player[Index].Chest := GetItemName(Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x360))
+		Player[Index].Hands := GetItemName(Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x364))
+		Player[Index].Legs :=  GetItemName(Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x368))
+		Player[Index].Head :=  GetItemName(Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x35C))
+		Player[Index].Ring1 := GetItemName(Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x370))
+		Player[Index].Ring2 := GetItemName(Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x374))
+		Player[Index].Ring3 := GetItemName(Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x378))
+		Player[Index].Ring4 := GetItemName(Game.read(BaseB,"Int",0x40,Offset,0x1FA0,0x37C))
 		Player[Index].TeamType := Game.read(BaseB,"Int",0x40,Offset,0x74)
 		Player[Index].Covenant := Game.read(BaseB,"Char",0x40,Offset,0x1FA0,0xF7)
 		Player[Index].CharacterType := Game.read(BaseB,"Int",0x40,Offset,0x70)
@@ -156,7 +165,33 @@ UpdateOSD:
 		Player[Index].AvatarURL := GetAvatarURL(Player[Index].SteamIDHex)
 		Player[Index].AvatarPath := GetAvatarPath(Player[Index].SteamIDHex)
 		Player[Index].FlagURL := GetFlagURL(Player[Index].SteamIDHex)
-		Player[Index].FlagPath := GetFlagPath(Player[Index].SteamIDHex)
+		Player[Index].FlagPath := GetFlagPath(Player[Index].SteamIDHex)	
+	}
+	
+	if(Window["LogPlayers"])
+	{
+		Loop,5
+		{
+			if(Player[A_Index].Level)
+			{
+				PlayerData := ""
+				For Index,Element in Player[A_Index]
+				{
+					if(Index="Name")
+						PlayerData := PlayerData . StrReplace(Element,A_Tab) . A_Tab
+					else if(Index="SteamName")					
+						PlayerData := PlayerData . StrReplace(Element,A_Tab) . A_Tab
+					else if(Index<>"SteamHTML" && Index<>"HP")
+						PlayerData := PlayerData . Element . A_Tab
+				}
+				
+				if(!PlayerEntry[PlayerData])
+				{
+					FileAppend,% PlayerData . "`n",Players.dat
+					PlayerEntry[PlayerData] := 1
+				}
+			}
+		}
 	}
 	
 	ActivePlayers := []
@@ -270,9 +305,9 @@ GetActivePlayers()
 	BaseB := Game.BaseAddress + 0x4768E78
 
 	ActivePlayers := []
-	For Index, Element in [0x38,0x70,0xA8,0xE0,0x118]
+	For Index, Offset in [0x38,0x70,0xA8,0xE0,0x118]
 	{
-		if(Game.Read(BaseB,"Int",0x40,Element,0x1FA0,0x70))
+		if(Game.Read(BaseB,"Int",0x40,Offset,0x1FA0,0x70))
 		{
 			NumPlayers += 1
 			ActivePlayers[NumPlayers] := A_Index
@@ -283,6 +318,13 @@ GetActivePlayers()
 		Return ActivePlayers
 	
 	Return 0
+}
+
+GetItemName(Int)
+{
+	if(ItemName[IntToHex(Int)])
+		Return ItemName[IntToHex(Int)]
+	Return IntToHex(Int)
 }
 
 GetInvadeType(Int)
