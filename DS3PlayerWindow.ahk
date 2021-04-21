@@ -17,15 +17,31 @@ if(FileExist("DS3PlayerWindow.ini"))
 	Loop,Parse,Temp,`n,`r
 		LabelColor[StrSplit(A_LoopField,"=")[1]] := StrSplit(A_LoopField,"=")[2]
 } else {
-	For Index, Element in {"X":1520,"Y":0,"Transparency":200,"Color":"000000","Font":"Calibri"}
+	For Index, Element in	{"X"									:1520
+							,"Y"									:0
+							,"Transparency"							:200
+							,"Color"								:"000000"
+							,"Font"									:"Calibri"}
 	{
 		IniWrite,%Element%,DS3PlayerWindow.ini,Window,%Index%
 		Window[Index] := Element
 	}
-	For Index, Element in {"Host":"00FF00","Phantom":"FFFFFF","Dark Spirit (Red Summon)":"FF0000","Dark Spirit (Invader)":"FF0000","Mound-Maker (White Summon)":"FF00FF"
-	,"Spear of the Church":"8000FF","Blade of the Darkmoon":"0000FF","Watchdog of Farron":"8000FF","Aldrich Faithful":"8000FF","Arena":"FFFFFF"
-	,"Warrior of Sunlight (White Summon)":"FFFF00","Warrior of Sunlight (Red Summon)":"FF8000","Mound-Maker (Red Summon)":"FF00FF"
-	,"Warrior of Sunlight (Invader)":"FF8000","Mound-Maker (Invader)":"FF00FF","Blue Sentinel":"0000FF"}
+	For Index, Element in	{"Host"									:"00FF00"
+							,"Phantom"								:"FFFFFF"
+							,"Dark Spirit (Red Summon)"				:"FF0000"
+							,"Dark Spirit (Invader)"				:"FF0000"
+							,"Mound-Maker (White Summon)"			:"FF00FF"
+							,"Spear of the Church"					:"8000FF"
+							,"Blade of the Darkmoon"				:"0000FF"
+							,"Watchdog of Farron"					:"8000FF"
+							,"Aldrich Faithful"						:"8000FF"
+							,"Arena"								:"FFFFFF"
+							,"Warrior of Sunlight (White Summon)"	:"FFFF00"
+							,"Warrior of Sunlight (Red Summon)"		:"FF8000"
+							,"Mound-Maker (Red Summon)"				:"FF00FF"
+							,"Warrior of Sunlight (Invader)"		:"FF8000"
+							,"Mound-Maker (Invader)"				:"FF00FF"
+							,"Blue Sentinel"						:"0000FF"}
 	{
 		IniWrite,%Element%,DS3PlayerWindow.ini,LabelColor,%Index%
 		LabelColor[Index] := Element
@@ -103,18 +119,6 @@ WinSet, Transparent, % Window.Transparency
 SetTimer,UpdateOSD,16
 SetTimer,UpdateCacheFile,30000
 
-Return
-
-
-UpdateCacheFile:
-	FileDelete,% A_ScriptDir . "\Players.dat"
-	PlayerData := ""
-	For Element in Cache
-	{
-		if(!InStr(Element,"Flag") && !InStr(Element,"Avatar"))
-			PlayerData := PlayerData . Element . A_Tab . Cache[Element].Name . A_Tab . Cache[Element].AvatarURL . A_Tab . Cache[Element].FlagURL . "`n"
-	}
-	FileAppend,% PlayerData,% A_ScriptDir . "\Players.dat",UTF-16
 Return
 
 UpdateOSD:
@@ -259,6 +263,17 @@ UpdateOSD:
 
 	Gui Show, % "w400 h" . Window["Height"] . " x" . Window["X"] . " y" . Window["Y"] . " NoActivate"
 	
+Return
+
+UpdateCacheFile:
+	FileDelete,% A_ScriptDir . "\Players.dat"
+	PlayerData := ""
+	For Element in Cache
+	{
+		if(!InStr(Element,"Flag") && !InStr(Element,"Avatar"))
+			PlayerData := PlayerData . Element . A_Tab . Cache[Element].Name . A_Tab . Cache[Element].AvatarURL . A_Tab . Cache[Element].FlagURL . "`n"
+	}
+	FileAppend,% PlayerData,% A_ScriptDir . "\Players.dat",UTF-16
 Return
 
 GetActivePlayers()
