@@ -1,5 +1,4 @@
-; DS3PlayerWindow.ahk
-; 1.1
+; DS3PlayerWindow.ahk v1.1
 
 #NoEnv
 #SingleInstance Force
